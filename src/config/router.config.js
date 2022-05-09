@@ -30,6 +30,21 @@ export const asyncRouterMap = [
           },
         ],
       },
+      {
+        path: '/excel',
+        name: 'excel',
+        component: RouteView,
+        redirect: '/excel/xss',
+        meta: { title: 'Excel', icon: 'excel', permission: ['table'] },
+        children: [
+          {
+            path: '/excel/xss',
+            name: 'xss',
+            component: () => import('@/pages/xss'),
+            meta: { title: 'X-Spreadsheet', keepAlive: true, permission: ['table'] },
+          },
+        ],
+      },
       // // dashboard
       // {
       //   path: '/dashboard',
