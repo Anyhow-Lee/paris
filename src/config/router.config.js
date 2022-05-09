@@ -43,6 +43,18 @@ export const asyncRouterMap = [
             component: () => import('@/pages/xss'),
             meta: { title: 'X-Spreadsheet', keepAlive: true, permission: ['table'] },
           },
+          {
+            path: '/excel/handson-table',
+            name: 'handson-table',
+            component: () => import('@/pages/handson-table'),
+            meta: { title: 'Handson Table', icon: 'table', permission: ['table'] },
+          },
+          {
+            path: '/excel/s2-table',
+            name: 's2-table',
+            component: () => import('@/pages/s2-table'),
+            meta: { title: 'S2 Table', icon: 'table', permission: ['table'] },
+          },
         ],
       },
       // // dashboard
