@@ -55,6 +55,12 @@ export const asyncRouterMap = [
             component: () => import('@/pages/s2-table'),
             meta: { title: 'S2 Table', icon: 'table', permission: ['table'] },
           },
+          {
+            path: '/excel/jexcel',
+            name: 'jexcel',
+            component: () => import('@/pages/jexcel'),
+            meta: { title: 'Jexcel', icon: 'table', permission: ['table'] },
+          },
         ],
       },
       // // dashboard
