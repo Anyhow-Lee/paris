@@ -1,19 +1,19 @@
 <template>
   <div class="main">
-    <a-form
-      id="formLogin"
-      class="user-layout-login"
-      ref="formLogin"
-      :form="form"
-      @submit="handleSubmit"
-    >
+    <a-form id="formLogin" class="user-layout-login" ref="formLogin" :form="form" @submit="handleSubmit">
       <a-tabs
         :activeKey="customActiveKey"
         :tabBarStyle="{ textAlign: 'center', borderBottom: 'unset' }"
         @change="handleTabClick"
       >
         <a-tab-pane key="tab1" :tab="$t('user.login.tab-login-credentials')">
-          <a-alert v-if="isLoginError" type="error" showIcon style="margin-bottom: 24px;" :message="$t('user.login.message-invalid-credentials')" />
+          <a-alert
+            v-if="isLoginError"
+            type="error"
+            showIcon
+            style="margin-bottom: 24px"
+            :message="$t('user.login.message-invalid-credentials')"
+          />
           <a-form-item>
             <a-input
               size="large"
@@ -21,10 +21,16 @@
               :placeholder="$t('user.login.username.placeholder')"
               v-decorator="[
                 'username',
-                {rules: [{ required: true, message: $t('user.userName.required') }, { validator: handleUsernameOrEmail }], validateTrigger: 'change'}
+                {
+                  rules: [
+                    { required: true, message: $t('user.userName.required') },
+                    { validator: handleUsernameOrEmail },
+                  ],
+                  validateTrigger: 'change',
+                },
               ]"
             >
-              <a-icon slot="prefix" type="user" :style="{ color: 'rgba(0,0,0,.25)' }"/>
+              <a-icon slot="prefix" type="user" :style="{ color: 'rgba(0,0,0,.25)' }" />
             </a-input>
           </a-form-item>
 
@@ -34,10 +40,10 @@
               :placeholder="$t('user.login.password.placeholder')"
               v-decorator="[
                 'password',
-                {rules: [{ required: true, message: $t('user.password.required') }], validateTrigger: 'blur'}
+                { rules: [{ required: true, message: $t('user.password.required') }], validateTrigger: 'blur' },
               ]"
             >
-              <a-icon slot="prefix" type="lock" :style="{ color: 'rgba(0,0,0,.25)' }"/>
+              <a-icon slot="prefix" type="lock" :style="{ color: 'rgba(0,0,0,.25)' }" />
             </a-input-password>
           </a-form-item>
         </a-tab-pane>
@@ -78,7 +84,36 @@
         >{{ $t('user.login.forgot-password') }}</router-link>
       </a-form-item> -->
 
-      <a-form-item style="margin-top:24px">
+      <a-form-item>
+        <a-row :gutter="16">
+          <a-col :span="14">
+            <a-input
+              size="large"
+              type="text"
+              placeholder="请输入验证码"
+              v-decorator="[
+                'captcha',
+                {
+                  rules: [{ required: true, message: '验证码不能为空' }],
+                  validateTrigger: 'change',
+                },
+              ]"
+            >
+            </a-input>
+          </a-col>
+          <a-col :span="10">
+            <img
+              class="login-captcha"
+              :src="captchaPath"
+              @click="getCaptcha"
+              title="点击切换验证码"
+              alt="验证码加载失败"
+            />
+          </a-col>
+        </a-row>
+      </a-form-item>
+
+      <a-form-item style="margin-top: 24px">
         <a-button
           size="large"
           type="primary"
@@ -86,7 +121,8 @@
           class="login-button"
           :loading="state.loginBtn"
           :disabled="state.loginBtn"
-        >{{ $t('user.login.login') }}</a-button>
+          >{{ $t('user.login.login') }}</a-button
+        >
       </a-form-item>
 
       <!-- <div class="user-login-other">
@@ -114,11 +150,12 @@
 </template>
 
 <script>
-import md5 from 'md5'
+// import md5 from 'md5'
 import TwoStepCaptcha from '@/components/tools/TwoStepCaptcha'
 import { mapActions } from 'vuex'
-import { timeFix } from '@/utils/util'
-import { getSmsCaptcha, get2step } from '@/api/login'
+import { timeFix, getUUID } from '@/utils/util'
+// import { getSmsCaptcha, get2step } from '@/api/login'
+import { get2step } from '@/api/login'
 
 export default {
   components: {
@@ -141,17 +178,20 @@ export default {
         loginType: 0,
         smsSendBtn: false,
       },
+      captchaPath: '',
+      uuid: '',
     }
   },
   created() {
-    get2step({ })
-      .then(res => {
+    get2step({})
+      .then((res) => {
         this.requiredTwoStepCaptcha = res.result.stepCode
       })
       .catch(() => {
         this.requiredTwoStepCaptcha = false
       })
     // this.requiredTwoStepCaptcha = true
+    this.getCaptcha()
   },
   methods: {
     ...mapActions(['Login', 'Logout']),
@@ -181,61 +221,36 @@ export default {
 
       state.loginBtn = true
 
-      const validateFieldsKey = customActiveKey === 'tab1' ? ['username', 'password'] : ['mobile', 'captcha']
+      const validateFieldsKey = customActiveKey === 'tab1' ? ['username', 'password', 'captcha'] : ['mobile', 'captcha']
 
       validateFields(validateFieldsKey, { force: true }, (err, values) => {
         if (!err) {
           console.log('login form', values)
-          const loginParams = { ...values }
+          var loginParams = { ...values }
           delete loginParams.username
           loginParams[!state.loginType ? 'email' : 'username'] = values.username
-          loginParams.password = md5(values.password)
+          // loginParams.password = md5(values.password)
+          loginParams.uuid = this.uuid
+          loginParams.grant_type = 'password'
+          console.log('login params', loginParams)
           Login(loginParams)
             .then((res) => this.loginSuccess(res))
-            .catch(err => this.requestFailed(err))
+            .catch((err) => this.requestFailed(err))
             .finally(() => {
               state.loginBtn = false
             })
         } else {
+          this.getCaptcha()
           setTimeout(() => {
             state.loginBtn = false
           }, 600)
         }
       })
     },
-    getCaptcha(e) {
-      e.preventDefault()
-      const { form: { validateFields }, state } = this
-
-      validateFields(['mobile'], { force: true }, (err, values) => {
-        if (!err) {
-          state.smsSendBtn = true
-
-          const interval = window.setInterval(() => {
-            if (state.time-- <= 0) {
-              state.time = 60
-              state.smsSendBtn = false
-              window.clearInterval(interval)
-            }
-          }, 1000)
-
-          const hide = this.$message.loading('验证码发送中..', 0)
-          getSmsCaptcha({ mobile: values.mobile }).then(res => {
-            setTimeout(hide, 2500)
-            this.$notification['success']({
-              message: '提示',
-              description: '验证码获取成功，您的验证码为：' + res.result.captcha,
-              duration: 8,
-            })
-          }).catch(err => {
-            setTimeout(hide, 1)
-            clearInterval(interval)
-            state.time = 60
-            state.smsSendBtn = false
-            this.requestFailed(err)
-          })
-        }
-      })
+    // 获取验证码
+    getCaptcha() {
+      this.uuid = getUUID()
+      this.captchaPath = `${process.env.VUE_APP_API_BASE_URL}/auth/captcha?uuid=${this.uuid}`
     },
     stepCaptchaSuccess() {
       this.loginSuccess()
@@ -291,6 +306,13 @@ export default {
     display: block;
     width: 100%;
     height: 40px;
+  }
+
+  .login-captcha {
+    width: 100%;
+    height: 40px;
+    cursor: pointer;
+    transform: translateY(3px);
   }
 
   .forge-password {
