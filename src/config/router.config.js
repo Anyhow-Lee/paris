@@ -30,6 +30,27 @@ export const asyncRouterMap = [
           },
         ],
       },
+      {
+        path: '/form',
+        name: 'form',
+        component: RouteView,
+        redirect: '/form/plan/zy',
+        meta: { title: 'form', icon: 'form' },
+        children: [
+          {
+            path: '/form/plan/zy',
+            name: 'plan-zy',
+            component: () => import('@/pages/form/plan/zy'),
+            meta: { title: '新增项目/项目摘要', keepAlive: true },
+          },
+          {
+            path: '/form/kjjbj/sb',
+            name: 'kj-sb',
+            component: () => import('@/pages/form/kjjbj/sb'),
+            meta: { title: '科技进步奖/申报', keepAlive: true },
+          },
+        ],
+      },
       // // dashboard
       // {
       //   path: '/dashboard',
