@@ -1,7 +1,8 @@
 import request from '@/utils/request'
+import Qs from 'qs'
 
 const userApi = {
-  Login: '/auth/login',
+  Login: '/auth/oauth/token',
   Logout: '/auth/logout',
   ForgePassword: '/auth/forge-password',
   Register: '/auth/register',
@@ -28,7 +29,11 @@ export function login(parameter) {
   return request({
     url: userApi.Login,
     method: 'post',
-    data: parameter,
+    data: Qs.stringify(parameter),
+    headers: {
+      'content-type': 'application/x-www-form-urlencoded',
+      Authorization: 'Basic d21zaW86d21zaW8=',
+    },
   })
 }
 
