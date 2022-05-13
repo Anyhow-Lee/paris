@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 export function timeFix() {
   const time = new Date()
   const hour = time.getHours()
@@ -92,6 +94,53 @@ export function scorePassword(pass) {
   score += (variationCount - 1) * 10
 
   return parseInt(score)
+}
+
+// 工具方法
+export const utilFn = {
+  _isString: _.isString,
+  _isNumber: _.isNumber,
+  _isInteger: _.isInteger,
+  _isBoolean: _.isBoolean,
+  _isArray: _.isArray,
+  _isFunction: _.isFunction,
+  _isPlainObject: _.isPlainObject,
+  _isDate: _.isDate,
+  _isElement: _.isElement,
+  _get: _.get,
+  _set: _.set,
+  _hasIn: _.hasIn,
+  _toNumber: _.toNumber,
+  _toString: _.toString,
+  _cloneDeep: _.cloneDeep,
+  _replace: _.replace,
+  _awaitWrap: awaitWrap,
+  _isEmpty: isEmpty,
+  _isNotEmpty: isNotEmpty,
+  _replaceValidator: replaceValidator,
+}
+
+// 封装promise，返回数组[err, data]
+export function awaitWrap(promise) {
+  return promise.then((data) => [null, data]).catch((err) => [err, null])
+}
+
+// 值是否为空
+export function isEmpty(val) {
+  if (typeof val === 'string') {
+    val = val.trim()
+  }
+  return val === undefined || val === null || val === '' || val === false || Object.is(val, NaN)
+}
+
+// 值是否不为空
+export function isNotEmpty(val) {
+  return !isEmpty(val)
+}
+
+// 正则替换校验
+export function replaceValidator(value, rule, filedPath) {
+  utilFn._set(this, filedPath, value.replace(rule, ''))
 }
 
 /**
