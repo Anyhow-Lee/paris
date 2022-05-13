@@ -3,15 +3,16 @@ import Qs from 'qs'
 
 const userApi = {
   Login: '/auth/oauth/token',
-  Logout: '/auth/logout',
+  Logout: '/auth/oauth/logout',
   ForgePassword: '/auth/forge-password',
   Register: '/auth/register',
   twoStepCode: '/auth/2step-code',
   SendSms: '/account/sms',
   SendSmsErr: '/account/sms_err',
   // get my info
-  UserInfo: '/user/info',
-  UserMenu: '/user/nav',
+  UserInfo: '/sys/user/info',
+  UserMenu: '/sys/menu/nav',
+  buttonPermissions: '/sys/menu/permissions',
 }
 
 /**
@@ -49,9 +50,6 @@ export function getInfo() {
   return request({
     url: userApi.UserInfo,
     method: 'get',
-    headers: {
-      'Content-Type': 'application/json;charset=UTF-8',
-    },
   })
 }
 
@@ -69,6 +67,13 @@ export function logout() {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8',
     },
+  })
+}
+
+export function getButtonPermissions() {
+  return request({
+    url: userApi.buttonPermissions,
+    method: 'get',
   })
 }
 
